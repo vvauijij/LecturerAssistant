@@ -1,0 +1,27 @@
+--------------
+создать + активировать виртуальное окружение
+python3 -m venv venv
+source venv/bin/activate
+--------------
+качаем все:
+pip install -r requirements.txt
+--------------
+настройка фласка:
+export FLASK_APP=website
+export FLASK_DEBUG=1
+--------------
+запуск:
+flask run
+--------------
+создать бд:
+в командной строке из папки ...-tex-bot
+python3
+from website import db, create_app, models
+with create_app().app_context():
+    db.create_all()
+
+exit()
+--------------
+если не работает на маке:
+flask run --port 8000
+
