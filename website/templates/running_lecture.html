@@ -1,0 +1,9 @@
+{%extends "base.html"%}
+
+{%block content%}
+{%for poll in polls_lec%}
+<form action="#", method="POST">
+    <p><input type="submit" value={{poll.question}}></p>
+</form>
+{%endfor%}
+{%endblock%}

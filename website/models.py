@@ -8,10 +8,14 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
 
+
 class LectureSample(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
-    description = db.Column(db.String(1000))
+    #description = db.Column(db.String(1000))
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = db.relationship('User', backref=db.backref('Lectures', lazy=True))
 
 
 class LectureResult(db.Model):
@@ -22,15 +26,24 @@ class LectureResult(db.Model):
 
 class PollSample(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100))
+    #name = db.Column(db.String(100))
     question = db.Column(db.String(255)) # лимит в телеге такой, вынести в файл с константами
-    poll_type = db.Column(db.Enum('quiz', 'reqular', name='poll_type'))
+    poll_type = db.Column(db.Enum('quiz', 'regular', name='poll_type'))
     correct_answer = db.Column(db.Integer) # номер правильного ответа
     hint = db.Column(db.String(255)) # лимит в телеге такой, вынести в файл с константами
     answer_variants = db.Column(db.Text) # json-ка с вариантами ответов
 
     lecture_sample_id = db.Column(db.Integer, db.ForeignKey('lecture_sample.id'))
     lecture_sample = db.relationship('LectureSample', backref=db.backref('polls', lazy=True))
+
+
+class ThemeSample(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    themes = db.Column(db.Text)
+
+    lecture_sample_id = db.Column(db.Integer, db.ForeignKey('lecture_sample.id'))
+    lecture_sample = db.relationship('LectureSample', backref=db.backref('themes', lazy=True))
+
 
 
 class PollResult(db.Model):

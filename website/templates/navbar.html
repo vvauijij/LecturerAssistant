@@ -11,6 +11,11 @@
           <a class="nav-link" href={{url_for("user_in.create_lecture_name")}}>New Lecture</a>
         </li>
           {% endif %}
+          {% if current_user.is_authenticated %}
+        <li class="nav-item">
+          <a class="nav-link" href={{url_for("user_in.my_lectures")}}>My Lectures</a>
+        </li>
+          {% endif %}
         <li class="nav-item">
           <a href="{{ url_for('main.index') }}" class="nav-link">
                                 Home
