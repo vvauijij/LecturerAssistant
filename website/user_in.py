@@ -77,9 +77,12 @@ def my_lectures():
 @user_in.route("/running/<lec_id>", methods=["POST", "GET"])
 @login_required
 def run_lecture(lec_id):
-    lector_assistant_bot.create_room(str(lec_id))
+    # TODO отпрака в бота
+
+    # lector_assistant_bot.create_room(str(lec_id))
+    # тут создается инстанс lecture_result
     polls_db = PollSample.query.filter_by(lecture_sample_id=lec_id)
-    polls_lec = dbPollsToTg(polls_db)
+    polls_lec, polls_ids = dbPollsToTg(polls_db)
     lec_db = LectureSample.query.filter_by(id=lec_id).first()
     lec = Lecture(title=lec_db.name, polls=polls_lec)
     lec.start_lecture()

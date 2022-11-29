@@ -32,11 +32,14 @@ def CreateThemes(file, cur_id):
 
 def dbPollsToTg(polls):
     polls_lec = []
+    polls_ids = []
     for poll in polls:
+        polls_ids.append(poll.id)
         question = poll.question
         poll_type = poll.poll_type
         correct_answer = poll.correct_answer
         explanation = poll.hint
         options = poll.answer_variants.decode()
-        polls_lec.append(Poll(question=question, options=options, poll_type=poll_type, correct_option_id=correct_answer, explanation=explanation))
-    return polls_lec
+        polls_lec.append(Poll(question=question, options=options, poll_type=poll_type, correct_option_id=correct_answer,
+                              explanation=explanation))
+    return polls_lec, polls_ids

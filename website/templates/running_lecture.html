@@ -6,4 +6,13 @@
     <p><input type="submit" value={{poll.question}}></p>
 </form>
 {%endfor%}
+
+{%for poll in polls_lec%}
+<form action="/user/running/{{poll.id}}/", method="POST">
+    <p><input type="submit" value={{poll.question}}></p>
+</form>
+{%endfor%}
+
+
+
 {%endblock%}

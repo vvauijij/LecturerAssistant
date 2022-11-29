@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 import os
 
 
@@ -17,6 +18,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = \
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate()
 
     # db.init_app(app)
 
