@@ -134,4 +134,5 @@ dmypy.json
 website/database.db
 
 website/junk/test_data
+website/migrations
 
