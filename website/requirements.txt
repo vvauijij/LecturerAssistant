@@ -7,3 +7,4 @@ pandas
 flask-script
 flask-migrate
 plotly
+kaleido

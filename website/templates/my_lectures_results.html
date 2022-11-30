@@ -1,0 +1,11 @@
+{%extends "base.html"%}
+
+{%block content%}
+{%for name, id in lecs%}
+<form id="form_get_lec" action="/user/show/{{id}}", method="POST">
+    <p><input type="submit" value={{name}}></p>
+</form>
+{%endfor%}
+{%endblock%}
+
+

@@ -93,18 +93,18 @@ class Lecture:
                  'timecodes',  # dict: theme - timecode
                  'current_theme']
 
-    def __init__(self, title='title', themes=None, polls=None):
+    def __init__(self, title='title', themes=None, polls=None, poll_ids=None):
         # create lecture
 
         self.title = title
+        self.themes = themes
+        self.polls = polls
+        self.poll_ids = poll_ids
         if themes is None:
             self.themes = list()
         if polls is None:
             self.polls = dict()
-
-        self.themes = themes
-        self.polls = polls
-
+            self.poll_ids = list()
         self.timecodes = None
         self.id = None
         self.polls_results = None
@@ -129,7 +129,8 @@ class Lecture:
             'id': self.id,
             'polls_results': self.polls_results,
             'timecodes': self.timecodes,
-            'current_theme': self.current_theme
+            'current_theme': self.current_theme,
+            'poll_ids': self.poll_ids
         }
 
 
@@ -141,4 +142,5 @@ def lecture_from_dict(lecture_dict) -> Lecture:
     lecture.polls_results = lecture_dict['polls_results']
     lecture.timecodes = lecture_dict['timecodes']
     lecture.current_theme = lecture_dict['current_theme']
+    lecture.poll_ids = lecture_dict['poll_ids']
     return lecture

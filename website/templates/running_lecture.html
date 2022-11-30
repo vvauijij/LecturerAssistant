@@ -1,17 +1,33 @@
 {%extends "base.html"%}
 
 {%block content%}
-{%for id, question in polls%}
-<form action="#", method="POST">
-    <p><input type="submit" value={{question}}></p>
-</form>
+
+<table>
+     {%for id, question in polls%}
+        <tr>
+            <th>
+            {{question}}
+            </th>
+            <td>
+                <form action="#" method="POST">
+                    <p><input type="submit" value="Post  poll"></p>
+                </form>
+            </td>
+            <td>
+                <form action="/user/endpoll/{{id}}" method="POST">
+                    <p><input type="submit" value="Close  poll"></p>
+                </form>
+            </td>
+        </tr>
+
+     {%endfor%}
+
+</table>
 
 
-<form action="/user/endpoll/{{id}}", method="POST">
-    <p><input type="submit" value={{question}}></p>
-</form>
 
-{%endfor%}
+
+
 
 
 

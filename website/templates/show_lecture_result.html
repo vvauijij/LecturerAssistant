@@ -1,0 +1,11 @@
+{%extends "base.html"%}
+
+{%block content%}
+
+
+<p>vis</p>
+{% for image in images%}
+<li><img src="data:image/png;base64,{{image}}"></li>
+{%endfor%}
+
+{%endblock%}

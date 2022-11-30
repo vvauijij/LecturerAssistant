@@ -6,10 +6,13 @@ from models import LectureSample, PollSample, ThemeSample, LectureResult, PollRe
 from LecParser import CreatePolls, CreateThemes, dbPollsToTg
 from app import db
 from flask_login import login_required, current_user
+import json
+import os
+import base64
 
 from lecture_template import Lecture, Poll, lecture_from_dict
 
-from plot_single_poll import render_plot
+from plotting import render_plot, convert_to_binary_data
 
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
 
@@ -81,23 +84,26 @@ def my_lectures():
 @user_in.route("/running/<lec_id>", methods=["POST", "GET"])
 @login_required
 def run_lecture(lec_id):
-    # TODO отправка в бота
-    # lector_assistant_bot.create_room(str(lec_id))
-    # тут создается инстанс lecture_result, пишем его в lec_result_id
-    new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id)
-    session["lec_result_id"] = new_lec_res.id
-    db.session.add(new_lec_res)
-    db.session.commit()
     polls_db = PollSample.query.filter_by(lecture_sample_id=lec_id)
-    polls_lec = dbPollsToTg(polls_db)
-
-    lec_db = LectureSample.query.filter_by(id=lec_id).first()
-    lec = Lecture(title=lec_db.name, polls=polls_lec)
-    lec.start_lecture(new_lec_res.id)
-    session["lec"] = lec.__dict__()
-    print(session["lec"])
+    polls_lec, polls_ids = dbPollsToTg(polls_db)
     poll_ids_questions = [(i, poll.question) for i, poll in enumerate(polls_lec)]
+    session["lec_sample_id"] = lec_id
+    if request.method == "POST":
+        # TODO отправка в бота
+        # lector_assistant_bot.create_room(str(lec_id))
+        # тут создается инстанс lecture_result, пишем его в lec_result_id
+        new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id)
+        db.session.add(new_lec_res)
+        db.session.commit()
+
+        session["lec_result_id"] = new_lec_res.id
+
+        lec_db = LectureSample.query.filter_by(id=lec_id).first()
+        lec = Lecture(title=lec_db.name, polls=polls_lec, poll_ids=polls_ids)
+        lec.start_lecture(new_lec_res.id)
+        session["lec"] = lec.__dict__()
     return render_template("running_lecture.html", polls=poll_ids_questions)
+
 
 
 # end funcs
@@ -107,20 +113,43 @@ def run_lecture(lec_id):
 def close_poll(id):
     if request.method == "POST":
         # TODO забирать данные из бота
-        reg_poll_data = {"ничего": 10, "что-то": 17}
-        quiz_poll_data = {"никого": 30, "кого-то": 45}
+        poll_data = {"никого": 30, "кого-то": 45}
 
         lec = lecture_from_dict(session["lec"])
         poll_sample = lec.polls[int(id)]
 
-        render_plot(quiz_poll_data, poll_sample)
+        link = render_plot(poll_data, poll_sample, id)
+        bin_data = convert_to_binary_data(link)
+        new_poll_res = PollResult(lecture_result_id=session["lec_result_id"],
+                                  poll_sample_id=int(lec.poll_ids[int(id)]),
+                                  answers=json.dumps(poll_data),
+                                  plot=bin_data)
+        db.session.add(new_poll_res)
+        db.session.commit()
+        os.remove(link)
+        # TODO закрыть опрос на сайте
+        # TODO визуализировать закрытые опросы
+    return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
-        # TODO закрыть опрос
 
-        return render_template("single_poll.html")
-    else:
-        return render_template("running_lecture.html")
+@user_in.route("/my_lectures_results")
+@login_required
+def my_lectures_results():
+    user_lecs = LectureResult.query.filter_by(user_id=current_user.id)
+    user_lecs_with_names = [(lec.lecture_sample.name, lec.id) for lec in user_lecs]
+    # TODO добавить время (чтобы как-то отличать лекции одного сэмпла)
+    return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
 
 
-def close_lecture():
-    pass
+@user_in.route("/show/<lec_id>", methods=["GET", "POST"])
+@login_required
+def show_lecture(lec_id):
+    polls_results_db = PollResult.query.filter_by(lecture_result_id=lec_id)
+    images = []
+    for poll in polls_results_db:
+        images.append(base64.b64encode(poll.plot).decode('utf-8'))
+    return render_template('show_lecture_result.html', images=images)
+
+
+
+
