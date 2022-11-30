@@ -1,17 +1,21 @@
 {%extends "base.html"%}
 
 {%block content%}
-{%for poll in polls_lec%}
+{%for id, question in polls%}
 <form action="#", method="POST">
-    <p><input type="submit" value={{poll.question}}></p>
+    <p><input type="submit" value={{question}}></p>
 </form>
+
+
+<form action="/user/endpoll/{{id}}", method="POST">
+    <p><input type="submit" value={{question}}></p>
+</form>
+
 {%endfor%}
 
-{%for poll in polls_lec%}
-<form action="/user/running/{{poll.id}}/", method="POST">
-    <p><input type="submit" value={{poll.question}}></p>
-</form>
-{%endfor%}
+
+
+
 
 
 

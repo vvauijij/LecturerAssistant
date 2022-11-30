@@ -2,18 +2,20 @@ from flask import Blueprint, Flask, redirect, url_for, render_template, request,
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
 import pandas as pd
-from models import LectureSample, PollSample, ThemeSample
+from models import LectureSample, PollSample, ThemeSample, LectureResult, PollResult
 from LecParser import CreatePolls, CreateThemes, dbPollsToTg
 from app import db
 from flask_login import login_required, current_user
 
-from lecture_template import Lecture, Poll
+from lecture_template import Lecture, Poll, Encoder
 
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
+
 
 class UploadFileForm(FlaskForm):
     file = FileField("File")
     submit = SubmitField("Upload File")
+
 
 # my_funcs:
 
@@ -77,16 +79,43 @@ def my_lectures():
 @user_in.route("/running/<lec_id>", methods=["POST", "GET"])
 @login_required
 def run_lecture(lec_id):
-    # TODO отпрака в бота
+    # TODO отправка в бота
+    print("h1")
 
     # lector_assistant_bot.create_room(str(lec_id))
-    # тут создается инстанс lecture_result
+    # тут создается инстанс lecture_result, пишем его в lec_result_id
+    new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id)
+    session["lec_result_id"] = new_lec_res.id
+    db.session.add(new_lec_res)
+    db.session.commit()
     polls_db = PollSample.query.filter_by(lecture_sample_id=lec_id)
-    polls_lec, polls_ids = dbPollsToTg(polls_db)
+    polls_lec = dbPollsToTg(polls_db)
+
     lec_db = LectureSample.query.filter_by(id=lec_id).first()
     lec = Lecture(title=lec_db.name, polls=polls_lec)
-    lec.start_lecture()
-    return render_template("running_lecture.html", polls_lec=polls_lec)
+    lec.start_lecture(new_lec_res.id)
+    session["lec"] = Encoder().encode(lec)
+    poll_ids_questions = [(i, poll.question) for i, poll in enumerate(polls_lec)]
+    return render_template("running_lecture.html", polls=poll_ids_questions)
 
 
 # end funcs
+
+@user_in.route("/endpoll/<id>", methods=["POST", "GET"])
+@login_required
+def close_poll(id):
+    if request.method == "POST":
+        # TODO забирать данные из бота
+
+        lec = Encoder().decode(session["lec"])
+        poll = lec.polls[int(id)]
+
+
+
+        return render_template("single_poll.html")
+    else:
+        return render_template("running_lecture.html")
+
+
+def close_lecture():
+    pass
