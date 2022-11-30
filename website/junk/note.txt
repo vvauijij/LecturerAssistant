@@ -23,3 +23,10 @@ exit()
 --------------
 если не работает на маке:
 flask run --port 8000
+
+
+
+
+бд и миграции
+flask db init
+flask db migrate -m "message"

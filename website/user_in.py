@@ -7,7 +7,9 @@ from LecParser import CreatePolls, CreateThemes, dbPollsToTg
 from app import db
 from flask_login import login_required, current_user
 
-from lecture_template import Lecture, Poll, Encoder
+from lecture_template import Lecture, Poll, lecture_from_dict
+
+from plot_single_poll import render_plot
 
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
 
@@ -80,8 +82,6 @@ def my_lectures():
 @login_required
 def run_lecture(lec_id):
     # TODO отправка в бота
-    print("h1")
-
     # lector_assistant_bot.create_room(str(lec_id))
     # тут создается инстанс lecture_result, пишем его в lec_result_id
     new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id)
@@ -94,7 +94,8 @@ def run_lecture(lec_id):
     lec_db = LectureSample.query.filter_by(id=lec_id).first()
     lec = Lecture(title=lec_db.name, polls=polls_lec)
     lec.start_lecture(new_lec_res.id)
-    session["lec"] = Encoder().encode(lec)
+    session["lec"] = lec.__dict__()
+    print(session["lec"])
     poll_ids_questions = [(i, poll.question) for i, poll in enumerate(polls_lec)]
     return render_template("running_lecture.html", polls=poll_ids_questions)
 
@@ -106,11 +107,15 @@ def run_lecture(lec_id):
 def close_poll(id):
     if request.method == "POST":
         # TODO забирать данные из бота
+        reg_poll_data = {"ничего": 10, "что-то": 17}
+        quiz_poll_data = {"никого": 30, "кого-то": 45}
 
-        lec = Encoder().decode(session["lec"])
-        poll = lec.polls[int(id)]
+        lec = lecture_from_dict(session["lec"])
+        poll_sample = lec.polls[int(id)]
 
+        render_plot(quiz_poll_data, poll_sample)
 
+        # TODO закрыть опрос
 
         return render_template("single_poll.html")
     else:

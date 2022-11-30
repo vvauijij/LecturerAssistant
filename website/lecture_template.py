@@ -1,14 +1,5 @@
 import datetime
-from json import JSONEncoder
-
-
-class Encoder(JSONEncoder):
-    def default(self, o):
-        return o.__dict__
-
-    def decode(self, o):
-        # TODO
-        pass
+import json
 
 
 class PollResult:
@@ -52,8 +43,12 @@ class Poll:
                  is_anonymous=False):
         # create poll
         self.question = question
+        self.options = options
         if options is None:
-            self.options = ['option1', 'option2']
+            self.options = []
+        elif type(options) == str:
+            self.options = json.loads(options)
+
         self.poll_type = poll_type
         self.correct_option_id = correct_option_id
         self.explanation = explanation
@@ -130,7 +125,7 @@ class Lecture:
         return {
             'title': self.title,
             'themes': self.themes,
-            'polls': self.polls,
+            'polls': [poll.__dict__() for poll in self.polls],
             'id': self.id,
             'polls_results': self.polls_results,
             'timecodes': self.timecodes,
@@ -138,4 +133,12 @@ class Lecture:
         }
 
 
-
+def lecture_from_dict(lecture_dict) -> Lecture:
+    lecture = Lecture(title=lecture_dict['title'],
+                      themes=lecture_dict['themes'],
+                      polls=[Poll(**poll) for poll in lecture_dict['polls']])
+    lecture.id = lecture_dict['id']
+    lecture.polls_results = lecture_dict['polls_results']
+    lecture.timecodes = lecture_dict['timecodes']
+    lecture.current_theme = lecture_dict['current_theme']
+    return lecture

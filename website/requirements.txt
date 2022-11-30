@@ -6,4 +6,4 @@ wtforms
 pandas
 flask-script
 flask-migrate
-flask-migrate
+plotly

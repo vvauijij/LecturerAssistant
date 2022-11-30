@@ -52,6 +52,8 @@ class PollResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     answers = db.Column(db.Text)  # json-ка со статистикой ответов
 
+    plot = db.Column(db.BLOB)  # картинка с графиком
+
     poll_sample_id = db.Column(db.Integer, db.ForeignKey('poll_sample.id'))
     poll_sample = db.relationship('PollSample', backref=db.backref('results', lazy=True))
 
