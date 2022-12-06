@@ -3,12 +3,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from flask_login import login_user, login_required, logout_user
 from app import db
+import bot_main
 
 auth = Blueprint('auth', __name__)
 
 
 @auth.route('/login')
 def login():
+    bot_main.lector_assistant_bot.launch()
+    bot_main.lector_assistant_bot.create_room('room')
     return render_template('login.html')
 
 
@@ -30,6 +33,7 @@ def login_post():
 
 @auth.route('/signup')
 def signup():
+    bot_main.lector_assistant_bot.stop()
     return render_template('signup.html')
 
 

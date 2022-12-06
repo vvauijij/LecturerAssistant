@@ -59,5 +59,3 @@ def feedback_command(message: types.Message) -> bool:
         bot.send_message(message.chat.id, 'Seems like you are not a member of any room')
         return False
 
-
-lector_assistant_bot.launch()
