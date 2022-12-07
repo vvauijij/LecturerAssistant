@@ -113,7 +113,7 @@ class LectorAssistantBot:
         else:
             return False
 
-    def send_poll(self, room_code: str, poll_id: str, poll_dict: dict) -> bool:
+    def send_poll(self, room_code: str, poll_id: str, poll: Poll) -> bool:
         """
         create Poll from dict and send poll to room with given room code
 
@@ -121,11 +121,11 @@ class LectorAssistantBot:
 
         :param room_code: str
         :param poll_id: str
-        :param poll_dict: dict
+        :param poll: Poll
         :return: poll_created: bool
         """
 
-        poll = poll_from_dict(poll_dict)
+        #poll = poll_from_dict(poll_dict)
 
         if room_code in self._rooms.keys():
             for chat_id in self._rooms[room_code]:

@@ -30,7 +30,6 @@ def login_post():
 
 @auth.route('/signup')
 def signup():
-    bot_main.lector_assistant_bot.stop()
     return render_template('signup.html')
 
 

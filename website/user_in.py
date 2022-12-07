@@ -105,14 +105,23 @@ def run_lecture(lec_id):
 
 
         lec_db = LectureSample.query.filter_by(id=lec_id).first()
-        lec = Lecture(title=lec_db.name, polls=polls_lec, poll_ids=polls_ids, code=session["room_code"])
+        lec = Lecture(title=lec_db.name, polls=polls_lec, poll_ids=polls_ids)
         lec.start_lecture(new_lec_res.id)
         session["lec"] = lec.__dict__()
-    return render_template("running_lecture.html", polls=poll_ids_questions)
+    return render_template("running_lecture.html", polls=poll_ids_questions, code=session["room_code"])
 
 
 
 # end funcs
+
+@user_in.route("/sendpoll/<id>", methods=["POST", "GET"])
+@login_required
+def send_poll(id):
+    if request.method == "POST":
+        lec = lecture_from_dict(session["lec"])
+        poll_sample = lec.polls[int(id)]
+        bot_main.lector_assistant_bot.send_poll(session["room_code"], id, poll_sample)
+    return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
 @user_in.route("/endpoll/<id>", methods=["POST", "GET"])
 @login_required

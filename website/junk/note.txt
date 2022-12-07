@@ -21,8 +21,8 @@ db.create_all()
 
 exit()
 --------------
-если не работает на маке:
-flask run --port 8000
+запустить:
+python exe.py
 
 
 

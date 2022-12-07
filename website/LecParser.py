@@ -1,7 +1,7 @@
 import pandas as pd
 from models import PollSample, ThemeSample
 import json
-from lecture_template import Poll
+from poll_template import Poll
 
 
 def CreatePolls(file, cur_id):
