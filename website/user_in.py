@@ -14,6 +14,8 @@ from lecture_template import Lecture, Poll, lecture_from_dict
 
 from plotting import render_plot, convert_to_binary_data
 
+import bot_main
+
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
 
 
@@ -97,9 +99,13 @@ def run_lecture(lec_id):
         db.session.commit()
 
         session["lec_result_id"] = new_lec_res.id
+        session["room_code"] = str(session["lec_result_id"])
+
+        bot_main.lector_assistant_bot.create_room(session["room_code"])
+
 
         lec_db = LectureSample.query.filter_by(id=lec_id).first()
-        lec = Lecture(title=lec_db.name, polls=polls_lec, poll_ids=polls_ids)
+        lec = Lecture(title=lec_db.name, polls=polls_lec, poll_ids=polls_ids, code=session["room_code"])
         lec.start_lecture(new_lec_res.id)
         session["lec"] = lec.__dict__()
     return render_template("running_lecture.html", polls=poll_ids_questions)

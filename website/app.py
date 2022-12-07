@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
 import os
+import threading
+import bot_main
 
 app = Flask(__name__)
 
@@ -44,3 +46,4 @@ app.register_blueprint(main_blueprint)
 from user_in import user_in as user_in_blueprint
 
 app.register_blueprint(user_in_blueprint)
+
