@@ -14,7 +14,7 @@ from lecture_template import Lecture, Poll, lecture_from_dict
 
 from plotting import render_plot, convert_to_binary_data
 
-import bot_main
+from telegram_bot import lecturer_assistant_bot
 
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
 
@@ -101,7 +101,7 @@ def run_lecture(lec_id):
         session["lec_result_id"] = new_lec_res.id
         session["room_code"] = str(session["lec_result_id"])
 
-        bot_main.lector_assistant_bot.create_room(session["room_code"])
+        lecturer_assistant_bot.create_room(session["room_code"])
 
 
         lec_db = LectureSample.query.filter_by(id=lec_id).first()
@@ -120,7 +120,7 @@ def send_poll(id):
     if request.method == "POST":
         lec = lecture_from_dict(session["lec"])
         poll_sample = lec.polls[int(id)]
-        bot_main.lector_assistant_bot.send_poll(session["room_code"], id, poll_sample)
+        lecturer_assistant_bot.send_poll(session["room_code"], id, poll_sample)
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
 @user_in.route("/endpoll/<id>", methods=["POST", "GET"])

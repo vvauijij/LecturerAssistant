@@ -19,7 +19,7 @@ import models
 db.create_all()
 
 
-exit()
+db.create_all()
 --------------
 запустить:
 python exe.py

@@ -4,7 +4,6 @@ from typing import Union
 import telebot
 from telebot import types
 
-from poll_template import poll_from_dict
 from lecture_template import Poll
 
 
@@ -13,7 +12,7 @@ def get_message_text(message: types.Message) -> str:
     return text[text.rfind(' ') + 1:]
 
 
-class LectorAssistantBot:
+class LecturerAssistantBot:
     __slots__ = ['_bot',
                  '_rooms',
                  '_users',
@@ -124,8 +123,6 @@ class LectorAssistantBot:
         :param poll: Poll
         :return: poll_created: bool
         """
-
-        #poll = poll_from_dict(poll_dict)
 
         if room_code in self._rooms.keys():
             for chat_id in self._rooms[room_code]:

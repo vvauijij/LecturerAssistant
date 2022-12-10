@@ -4,7 +4,6 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 import os
 import threading
-import bot_main
 
 app = Flask(__name__)
 

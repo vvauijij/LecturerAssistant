@@ -1,11 +1,9 @@
-import bot_main
+from telegram_bot import lecturer_assistant_bot
 import app
-import bot_launcher
 import threading
 
 if __name__ == "__main__":
-    bot_main.init()
     threading.Thread(target=lambda: app.app.run(debug=False)).start()
-    bot_launcher.launch()
+    lecturer_assistant_bot.launch()
 
 
