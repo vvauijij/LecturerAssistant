@@ -72,7 +72,9 @@ class Lecture:
                  'timecodes',
                  'poll_ids',
                  'polls',
-                 'polls_results']
+                 'polls_results',
+                 'sent_polls_ids',
+                 'polls_available']
 
     def __init__(self,
                  title='title',
@@ -98,10 +100,14 @@ class Lecture:
 
         if polls is None:
             self.polls = dict()
+            self.polls_available = list()
         else:
             self.polls = polls
+            self.polls_available = [True for _ in range(len(polls))]
 
         self.polls_results = dict()
+        self.sent_polls_ids = list()
+
 
     def start_lecture(self, lecture_id: str) -> None:
 
@@ -136,7 +142,9 @@ class Lecture:
             'timecodes': self.timecodes,
             'poll_ids': self.poll_ids,
             'polls': [poll.__dict__() for poll in self.polls],
-            'polls_results': self.polls_results
+            'polls_results': self.polls_results,
+            'sent_polls_ids': self.sent_polls_ids,
+            'polls_available': self.polls_available
         }
 
 
@@ -168,5 +176,11 @@ def lecture_from_dict(lecture_dict: dict) -> Lecture:
 
     if 'polls_results' in lecture_dict.keys():
         lecture.polls_results = lecture_dict['polls_results']
+
+    if 'sent_polls_ids' in lecture_dict.keys():
+        lecture.sent_polls_ids = lecture_dict['sent_polls_ids']
+
+    if 'polls_available' in lecture_dict.keys():
+        lecture.polls_available = lecture_dict['polls_available']
 
     return lecture
