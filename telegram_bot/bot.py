@@ -28,7 +28,8 @@ class LecturerAssistantBot:
         self._users = defaultdict(str)  # chat_id - room_code
 
         self._polls = defaultdict(list)  # poll_id - (chat_id, poll_message_id)
-        self._feedback = defaultdict(list)  # room_code - [feedback1 ... feedback2]
+        # room_code - [feedback1 ... feedback2]
+        self._feedback = defaultdict(list)
 
     def launch(self) -> None:
         """
@@ -107,7 +108,8 @@ class LecturerAssistantBot:
         """
         chat_id = message.chat.id
         if chat_id in self._users.keys():
-            self._feedback[self._users[chat_id]].append(get_message_text(message))
+            self._feedback[self._users[chat_id]].append(
+                get_message_text(message))
             return True
         else:
             return False
@@ -142,6 +144,8 @@ class LecturerAssistantBot:
         """
         return dict of poll results from room with given room code
 
+        dict['no_vote'] stores amount of those who did not vote
+
         return None, if room code is invalid
 
         :param room_code: str
@@ -150,10 +154,13 @@ class LecturerAssistantBot:
         """
         poll_results = defaultdict(int)
         if room_code in self._rooms.keys() and poll_id in self._polls.keys():
+            voters_amount = len(self._rooms[room_code])
             for [chat_id, poll_message_id] in self._polls[poll_id]:
                 options = self._bot.stop_poll(chat_id, poll_message_id).options
                 for option in options:
                     poll_results[option.text] += option.voter_count
+                    voters_amount -= option.voter_count
+            poll_results['no_vote'] = voters_amount
             self._polls.pop(poll_id)
             return poll_results
         else:
