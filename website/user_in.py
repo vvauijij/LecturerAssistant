@@ -9,6 +9,7 @@ from flask_login import login_required, current_user
 import json
 import os
 import base64
+from datetime import datetime
 
 from lecture_template import Lecture, Poll, lecture_from_dict
 
@@ -91,7 +92,7 @@ def run_lecture(lec_id):
     session["lec_sample_id"] = lec_id
     if request.method == "POST":
         # тут создается инстанс lecture_result, пишем его в lec_result_id
-        new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id)
+        new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id, time=datetime.now())
         db.session.add(new_lec_res)
         db.session.commit()
 
@@ -156,8 +157,8 @@ def close_poll(id):
 @login_required
 def my_lectures_results():
     user_lecs = LectureResult.query.filter_by(user_id=current_user.id)
-    user_lecs_with_names = [(lec.lecture_sample.name, lec.id) for lec in user_lecs]
-    # TODO добавить время (чтобы как-то отличать лекции одного сэмпла)
+    user_lecs_with_names = [(lec.lecture_sample.name, lec.id, lec.time.strftime("%H:%M %d.%m.%Y")) for lec in user_lecs]
+
     return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
 
 

@@ -20,6 +20,7 @@ class LectureSample(db.Model):
 
 class LectureResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.DateTime)
 
     lecture_sample_id = db.Column(db.Integer, db.ForeignKey('lecture_sample.id'))
     lecture_sample = db.relationship('LectureSample', backref=db.backref('LectureResults', lazy=True))
