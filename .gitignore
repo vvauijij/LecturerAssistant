@@ -138,4 +138,4 @@ website/migrations
 .DS_Store
 
 database.db
-
+.idea
