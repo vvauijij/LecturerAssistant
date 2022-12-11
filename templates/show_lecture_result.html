@@ -1,11 +1,17 @@
 {%extends "base.html"%}
 
-{%block content%}
 
 
-<p>vis</p>
-{% for image in images%}
-<li><img src="data:image/png;base64,{{image}}"></li>
-{%endfor%}
+
+{% block content %}
+ <p>Answers Statistics</p>
+<div id='chart' class='chart'></div>
+
+
+<script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
+<script type='text/javascript'>
+  var graphs = {{graphJSON | safe}};
+  Plotly.plot('chart',graphs,{});
+</script>
 
 {%endblock%}

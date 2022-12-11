@@ -1,18 +1,18 @@
 from flask import Blueprint, Flask, redirect, url_for, render_template, request, session
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
-import pandas as pd
 from models import LectureSample, PollSample, ThemeSample, LectureResult, PollResult
 from LecParser import CreatePolls, CreateThemes, dbPollsToTg
 from app import db
 from flask_login import login_required, current_user
 import json
-import os
-import base64
+from datetime import datetime
+import pandas as pd
 
-from lecture_template import Lecture, Poll, lecture_from_dict
+from lecture_templates.lecture_template import Lecture, lecture_from_dict
+from lecture_templates.poll_template import Poll
 
-from plotting import render_plot, convert_to_binary_data
+from plotting import render_plot
 
 from telegram_bot import lecturer_assistant_bot
 
@@ -88,13 +88,10 @@ def my_lectures():
 def run_lecture(lec_id):
     polls_db = PollSample.query.filter_by(lecture_sample_id=lec_id)
     polls_lec, polls_ids = dbPollsToTg(polls_db)
-    poll_ids_questions = [(i, poll.question) for i, poll in enumerate(polls_lec)]
     session["lec_sample_id"] = lec_id
     if request.method == "POST":
-        # TODO отправка в бота
-        # lector_assistant_bot.create_room(str(lec_id))
         # тут создается инстанс lecture_result, пишем его в lec_result_id
-        new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id)
+        new_lec_res = LectureResult(lecture_sample_id=lec_id, user_id=current_user.id, time=datetime.now())
         db.session.add(new_lec_res)
         db.session.commit()
 
@@ -103,13 +100,15 @@ def run_lecture(lec_id):
 
         lecturer_assistant_bot.create_room(session["room_code"])
 
-
         lec_db = LectureSample.query.filter_by(id=lec_id).first()
         lec = Lecture(title=lec_db.name, polls=polls_lec, poll_ids=polls_ids)
         lec.start_lecture(new_lec_res.id)
         session["lec"] = lec.__dict__()
-    return render_template("running_lecture.html", polls=poll_ids_questions, code=session["room_code"])
-
+    lec = lecture_from_dict(session["lec"])
+    polls_available = lec.polls_available
+    polls = [(i, polls_lec[i].question, polls_available[i]) for i in range(len(polls_lec))]
+    return render_template("running_lecture.html", polls=polls, code=session["room_code"],
+                           polls_available=lec.polls_available)
 
 
 # end funcs
@@ -120,30 +119,33 @@ def send_poll(id):
     if request.method == "POST":
         lec = lecture_from_dict(session["lec"])
         poll_sample = lec.polls[int(id)]
-        lecturer_assistant_bot.send_poll(session["room_code"], id, poll_sample)
+        lec.sent_polls_ids.append(int(id))
+        lec.polls_available[int(id)] = False
+        session["lec"] = lec.__dict__()
+        lecturer_assistant_bot.send_poll(session["room_code"], len(lec.sent_polls_ids)-1, poll_sample)
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
+
 
 @user_in.route("/endpoll/<id>", methods=["POST", "GET"])
 @login_required
 def close_poll(id):
     if request.method == "POST":
-        # TODO забирать данные из бота
-        poll_data = {"никого": 30, "кого-то": 45}
-
         lec = lecture_from_dict(session["lec"])
-        poll_sample = lec.polls[int(id)]
+        bot_id = len(lec.sent_polls_ids) - 1 - lec.sent_polls_ids[::-1].index(int(id))
+        print(bot_id)
 
-        link = render_plot(poll_data, poll_sample, id)
-        bin_data = convert_to_binary_data(link)
+        poll_data = lecturer_assistant_bot.get_poll_result(session["room_code"], bot_id)
+
+        # link = render_plot(poll_data, poll_sample, id)
+        # bin_data = convert_to_binary_data(link)
         new_poll_res = PollResult(lecture_result_id=session["lec_result_id"],
                                   poll_sample_id=int(lec.poll_ids[int(id)]),
-                                  answers=json.dumps(poll_data),
-                                  plot=bin_data)
+                                  answers=json.dumps(poll_data, ensure_ascii=False))
         db.session.add(new_poll_res)
         db.session.commit()
-        os.remove(link)
-        # TODO закрыть опрос на сайте
-        # TODO визуализировать закрытые опросы
+        lec.polls_available[int(id)] = True
+        session["lec"] = lec.__dict__()
+
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
 
@@ -151,20 +153,16 @@ def close_poll(id):
 @login_required
 def my_lectures_results():
     user_lecs = LectureResult.query.filter_by(user_id=current_user.id)
-    user_lecs_with_names = [(lec.lecture_sample.name, lec.id) for lec in user_lecs]
-    # TODO добавить время (чтобы как-то отличать лекции одного сэмпла)
+    user_lecs_with_names = [(lec.lecture_sample.name, lec.id, lec.time.strftime("%H:%M %d.%m.%Y")) for lec in user_lecs]
     return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
 
 
 @user_in.route("/show/<lec_id>", methods=["GET", "POST"])
 @login_required
 def show_lecture(lec_id):
+
     polls_results_db = PollResult.query.filter_by(lecture_result_id=lec_id)
-    images = []
-    for poll in polls_results_db:
-        images.append(base64.b64encode(poll.plot).decode('utf-8'))
-    return render_template('show_lecture_result.html', images=images)
 
+    graphJSON = render_plot(polls_results_db)
 
-
-
+    return render_template('show_lecture_result.html', graphJSON=graphJSON)

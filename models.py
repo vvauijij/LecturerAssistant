@@ -20,6 +20,7 @@ class LectureSample(db.Model):
 
 class LectureResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    time = db.Column(db.DateTime)
 
     lecture_sample_id = db.Column(db.Integer, db.ForeignKey('lecture_sample.id'))
     lecture_sample = db.relationship('LectureSample', backref=db.backref('LectureResults', lazy=True))
@@ -51,8 +52,6 @@ class ThemeSample(db.Model):
 class PollResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     answers = db.Column(db.Text)  # json-ка со статистикой ответов
-
-    plot = db.Column(db.BLOB)  # картинка с графиком
 
     poll_sample_id = db.Column(db.Integer, db.ForeignKey('poll_sample.id'))
     poll_sample = db.relationship('PollSample', backref=db.backref('results', lazy=True))
