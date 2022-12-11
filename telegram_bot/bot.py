@@ -4,7 +4,7 @@ from typing import Union
 import telebot
 from telebot import types
 
-from lecture_template import Poll
+from lecture_templates.poll_template import Poll
 
 
 def get_message_text(message: types.Message) -> str:
