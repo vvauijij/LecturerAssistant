@@ -1,19 +1,18 @@
 from flask import Blueprint, Flask, redirect, url_for, render_template, request, session
 from flask_wtf import FlaskForm
 from wtforms import FileField, SubmitField
-import pandas as pd
 from models import LectureSample, PollSample, ThemeSample, LectureResult, PollResult
 from LecParser import CreatePolls, CreateThemes, dbPollsToTg
 from app import db
 from flask_login import login_required, current_user
 import json
-import os
-import base64
 from datetime import datetime
+import pandas as pd
+
 
 from lecture_template import Lecture, Poll, lecture_from_dict
 
-from plotting import render_plot, convert_to_binary_data
+from plotting import render_plot
 
 import bot_main
 
@@ -133,20 +132,17 @@ def close_poll(id):
     if request.method == "POST":
         lec = lecture_from_dict(session["lec"])
         bot_id = len(lec.sent_polls_ids) - 1 - lec.sent_polls_ids[::-1].index(int(id))
-        poll_sample = lec.polls[int(id)]
+        print(bot_id)
 
         poll_data = bot_main.lector_assistant_bot.get_poll_result(session["room_code"], bot_id)
 
-        link = render_plot(poll_data, poll_sample, id)
-        bin_data = convert_to_binary_data(link)
+        # link = render_plot(poll_data, poll_sample, id)
+        # bin_data = convert_to_binary_data(link)
         new_poll_res = PollResult(lecture_result_id=session["lec_result_id"],
                                   poll_sample_id=int(lec.poll_ids[int(id)]),
-                                  answers=json.dumps(poll_data),
-                                  plot=bin_data)
+                                  answers=json.dumps(poll_data, ensure_ascii=False))
         db.session.add(new_poll_res)
         db.session.commit()
-        os.remove(link)
-
         lec.polls_available[int(id)] = True
         session["lec"] = lec.__dict__()
 
@@ -158,15 +154,15 @@ def close_poll(id):
 def my_lectures_results():
     user_lecs = LectureResult.query.filter_by(user_id=current_user.id)
     user_lecs_with_names = [(lec.lecture_sample.name, lec.id, lec.time.strftime("%H:%M %d.%m.%Y")) for lec in user_lecs]
-
     return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
 
 
 @user_in.route("/show/<lec_id>", methods=["GET", "POST"])
 @login_required
 def show_lecture(lec_id):
+
     polls_results_db = PollResult.query.filter_by(lecture_result_id=lec_id)
-    images = []
-    for poll in polls_results_db:
-        images.append(base64.b64encode(poll.plot).decode('utf-8'))
-    return render_template('show_lecture_result.html', images=images)
+
+    graphJSON = render_plot(polls_results_db)
+
+    return render_template('show_lecture_result.html', graphJSON=graphJSON)
