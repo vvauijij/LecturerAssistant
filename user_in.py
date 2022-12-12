@@ -14,7 +14,6 @@ from lecture_templates.poll_template import Poll
 from plotting import render_plot
 from telegram_bot import lecturer_assistant_bot
 
-
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
 
 
@@ -29,6 +28,7 @@ class CreateLectureForm(FlaskForm):
 @login_required
 def home():
     return render_template("index.html")
+
 
 @user_in.route("/create_lecture", methods=["POST", "GET"])
 @login_required
@@ -57,11 +57,13 @@ def create_lecture():
         return redirect(url_for("main.index"))
     return render_template('create_lecture.html', form=form)
 
+
 @user_in.route("/my_lectures")
 @login_required
 def my_lectures():
     user_lecs = LectureSample.query.filter_by(user_id=current_user.id)
     return render_template('my_lectures.html', lecs=user_lecs)
+
 
 @user_in.route("/running/<lec_id>", methods=["POST", "GET"])
 @login_required
@@ -90,6 +92,7 @@ def run_lecture(lec_id):
     return render_template("running_lecture.html", polls=polls, code=session["room_code"],
                            polls_available=lec.polls_available)
 
+
 @user_in.route("/sendpoll/<id>", methods=["POST", "GET"])
 @login_required
 def send_poll(id):
@@ -99,8 +102,9 @@ def send_poll(id):
         lec.sent_polls_ids.append(int(id))
         lec.polls_available[int(id)] = False
         session["lec"] = lec.__dict__()
-        lecturer_assistant_bot.send_poll(session["room_code"], len(lec.sent_polls_ids)-1, poll_sample)
+        lecturer_assistant_bot.send_poll(session["room_code"], len(lec.sent_polls_ids) - 1, poll_sample)
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
+
 
 @user_in.route("/endpoll/<id>", methods=["POST", "GET"])
 @login_required
@@ -108,10 +112,7 @@ def close_poll(id):
     if request.method == "POST":
         lec = lecture_from_dict(session["lec"])
         bot_id = len(lec.sent_polls_ids) - 1 - lec.sent_polls_ids[::-1].index(int(id))
-        print(bot_id)
-
         poll_data = lecturer_assistant_bot.get_poll_result(session["room_code"], bot_id)
-
         new_poll_res = PollResult(lecture_result_id=session["lec_result_id"],
                                   poll_sample_id=int(lec.poll_ids[int(id)]),
                                   answers=json.dumps(poll_data, ensure_ascii=False))
@@ -122,6 +123,7 @@ def close_poll(id):
 
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
+
 @user_in.route("/my_lectures_results")
 @login_required
 def my_lectures_results():
@@ -129,10 +131,10 @@ def my_lectures_results():
     user_lecs_with_names = [(lec.lecture_sample.name, lec.id, lec.time.strftime("%H:%M %d.%m.%Y")) for lec in user_lecs]
     return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
 
+
 @user_in.route("/show/<lec_id>", methods=["GET", "POST"])
 @login_required
 def show_lecture(lec_id):
-
     polls_results_db = PollResult.query.filter_by(lecture_result_id=lec_id)
 
     graphJSON = render_plot(polls_results_db)
