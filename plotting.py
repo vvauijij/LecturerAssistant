@@ -4,6 +4,7 @@ import plotly
 import pandas as pd
 import numpy as np
 import json
+import textwrap
 from models import PollSample
 
 
@@ -20,25 +21,22 @@ def render_plot(polls_results_db):
         sz += 1
     if sz == 0:
         return None
-    rows_amount = sz // 3 + (sz % 3 != 0)
-    cols_amount = 3
+    cols_amount = 2
+    rows_amount = sz // cols_amount + (sz % cols_amount != 0)
+
     new_titles = []
+    title_width = 44
     for i in range(len(titles)):
-        start = 0
-        title = ""
-        for end in range(30, len(titles[i]), 60):
-            title += titles[i][start:end] + "<br>"
-            start = end
-        if start < len(titles[i]):
-            title += titles[i][start:]
-        new_titles.append(title)
+        new_titles.append(textwrap.fill(titles[i], title_width).replace("\n", "<br>"))
 
     plot = sp.make_subplots(rows=rows_amount, cols=cols_amount, subplot_titles=new_titles,
-                            specs=[[{"type": "domain"}, {"type": "domain"}, {"type": "domain"}] for _ in range(rows_amount)])
+                            specs=[[{"type": "domain"}, {"type": "domain"}] for _ in range(rows_amount)])
+    content = False
     for i, poll_res in enumerate(polls_results_db):
         answers = json.loads(poll_res.answers)
         if answers is None:
             continue
+        content = True
         df = pd.DataFrame(answers, index=["key"])
         df = pd.DataFrame(np.vstack([df.columns, df])).T
         df = df.rename({0: 'answer', 1: 'count'}, axis=1)
@@ -59,10 +57,15 @@ def render_plot(polls_results_db):
         final_labels = [labels[i] for i in range(len(labels)) if not zeros[i]]
         final_values = [values[i] for i in range(len(values)) if not zeros[i]]
         final_pull = [pull[i] for i in range(len(pull)) if not zeros[i]]
-        plot.add_trace(go.Pie(labels=final_labels, values=final_values, pull=final_pull), row=i // 3 + 1, col=i % 3 + 1)
+        plot.add_trace(go.Pie(labels=final_labels, values=final_values, pull=final_pull), row=i // cols_amount + 1,
+                       col=i % cols_amount + 1)
     # plot sz - 300 x 300, annotations - 30 letters in a line, max annotation sz = 255 letters => 9 lines, 10px per line => 100px
     # for title height (for case of emergency)
-    plot.update_layout(height=550 * rows_amount, width=3*550 + 200, showlegend=False)
-    plot.update_annotations(width=550)
+    if not content:
+        return None
+    width = 300
+    height = 300 + 150
+    plot.update_layout(height=height * rows_amount, width=3 * width + 100, showlegend=False)
+    plot.update_annotations(width=width + 30, font_size=13)
     graphJSON = json.dumps(plot, cls=plotly.utils.PlotlyJSONEncoder)
     return graphJSON
