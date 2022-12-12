@@ -126,14 +126,17 @@ class LecturerAssistantBot:
 
         if room_code in self._rooms.keys():
             for chat_id in self._rooms[room_code]:
-                self._polls[poll_id].append((chat_id, self._bot.send_poll(chat_id,
-                                                                          question=poll.question,
-                                                                          options=poll.options,
-                                                                          type=poll.poll_type,
-                                                                          correct_option_id=poll.correct_option_id,
-                                                                          explanation=poll.explanation,
-                                                                          is_closed=poll.is_closed,
-                                                                          is_anonymous=poll.is_anonymous).id))
+                try:
+                    self._polls[poll_id].append((chat_id, self._bot.send_poll(chat_id,
+                                                                              question=poll.question,
+                                                                              options=poll.options,
+                                                                              type=poll.poll_type,
+                                                                              correct_option_id=poll.correct_option_id,
+                                                                              explanation=poll.explanation,
+                                                                              is_closed=poll.is_closed,
+                                                                              is_anonymous=poll.is_anonymous).id))
+                except Exception:
+                    return False
             return True
         else:
             return False
@@ -154,10 +157,13 @@ class LecturerAssistantBot:
         if room_code in self._rooms.keys() and poll_id in self._polls.keys():
             voters_amount = len(self._rooms[room_code])
             for [chat_id, poll_message_id] in self._polls[poll_id]:
-                options = self._bot.stop_poll(chat_id, poll_message_id).options
-                for option in options:
-                    poll_results[option.text] += option.voter_count
-                    voters_amount -= option.voter_count
+                try:
+                    options = self._bot.stop_poll(chat_id, poll_message_id).options
+                    for option in options:
+                        poll_results[option.text] += option.voter_count
+                        voters_amount -= option.voter_count
+                except Exception:
+                    continue
             poll_results['no_vote'] = voters_amount
             self._polls.pop(poll_id)
             return poll_results
