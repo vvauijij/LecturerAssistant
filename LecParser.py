@@ -5,6 +5,12 @@ from lecture_templates.poll_template import Poll
 
 
 def CreatePolls(file, cur_id):
+    """
+    create list of PollSamples(to be stored in the database) from an input file
+
+    :param file: json
+    :param cur_id: db.Integer(int)
+    """
     polls = []
     data = pd.read_json(file)
     for line in data.values:
@@ -20,8 +26,13 @@ def CreatePolls(file, cur_id):
                                 answer_variants=options, lecture_sample_id=cur_id))
     return polls
 
-
 def CreateThemes(file, cur_id):
+    """
+    create list of ThemeSamples(to be stored in the database) from an input file
+
+    :param file: json
+    :param cur_id: db.Integer(int)
+    """
     themes_list = []
     data = pd.read_json(file)
     for line in data.values:
@@ -29,8 +40,12 @@ def CreateThemes(file, cur_id):
     themes_list = json.dumps(themes_list, ensure_ascii=False).encode('utf-8')  # чтобы брать нужен .decode()
     return ThemeSample(themes=themes_list, lecture_sample_id=cur_id)
 
-
 def dbPollsToTg(polls):
+    """
+    creates list of Poll from PollSamples
+
+    :param polls: list(PollSample)
+    """
     polls_lec = []
     poll_samples_ids = []
     for poll in polls:

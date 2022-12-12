@@ -1,6 +1,7 @@
 from flask import Blueprint, Flask, redirect, url_for, render_template, request, session
 from flask_wtf import FlaskForm
-from wtforms import FileField, SubmitField
+from wtforms import StringField, FileField, SubmitField
+from wtforms.validators import DataRequired
 from models import LectureSample, PollSample, ThemeSample, LectureResult, PollResult
 from LecParser import CreatePolls, CreateThemes, dbPollsToTg
 from app import db
@@ -8,80 +9,59 @@ from flask_login import login_required, current_user
 import json
 from datetime import datetime
 import pandas as pd
-
 from lecture_templates.lecture_template import Lecture, lecture_from_dict
 from lecture_templates.poll_template import Poll
-
 from plotting import render_plot
-
 from telegram_bot import lecturer_assistant_bot
+
 
 user_in = Blueprint('user_in', __name__, url_prefix="/user")
 
 
-class UploadFileForm(FlaskForm):
-    file = FileField("File")
-    submit = SubmitField("Upload File")
-
-
-# my_funcs:
+class CreateLectureForm(FlaskForm):
+    lec_name = StringField("Name:", validators=[DataRequired()])
+    topics = FileField("Topics:", validators=[DataRequired()])
+    polls = FileField("Polls:", validators=[DataRequired()])
+    submit = SubmitField("Create", validators=[DataRequired()])
 
 
 @user_in.route("/")
 @login_required
 def home():
-    return render_template("home.html")
+    return render_template("index.html")
 
-
-@user_in.route("/create_lecture/name", methods=["POST", "GET"])
+@user_in.route("/create_lecture", methods=["POST", "GET"])
 @login_required
-def create_lecture_name():
-    if request.method == "POST":
-        session["lec_name"] = request.form["lec_name"]
+def create_lecture():
+    form = CreateLectureForm()
+    if form.validate_on_submit():
+        lec_name_inp = form.lec_name.data
+        session["lec_name"] = lec_name_inp
         new_lec = LectureSample(name=session["lec_name"], user_id=current_user.id)
         db.session.add(new_lec)
         db.session.commit()
         session["lec_id"] = new_lec.id
-        return redirect(url_for("user_in.create_lecture_themes"))
-    else:
-        return render_template("create_lecture_name.html")
 
-
-@user_in.route("/create_lecture/themes", methods=["POST", "GET"])
-@login_required
-def create_lecture_themes():
-    form = UploadFileForm()
-    if form.validate_on_submit():
-        file = form.file.data  # First grab the file
-        session["themes"] = pd.read_csv(file).to_json()
+        topics_inp = form.topics.data
+        session["themes"] = pd.read_csv(topics_inp).to_json()
         themes = CreateThemes(session["themes"], session["lec_id"])
         db.session.add(themes)
         db.session.commit()
-        return redirect(url_for("user_in.create_lecture_tasks"))
-    return render_template('create_lecture_themes.html', form=form)
 
-
-@user_in.route("/create_lecture/tasks", methods=["POST", "GET"])
-@login_required
-def create_lecture_tasks():
-    form = UploadFileForm()
-    if form.validate_on_submit():
-        file = form.file.data  # First grab the file
-        session["tasks"] = pd.read_csv(file).to_json()
+        polls_inp = form.polls.data
+        session["tasks"] = pd.read_csv(polls_inp).to_json()
         polls = CreatePolls(session["tasks"], session["lec_id"])
         for poll in polls:
             db.session.add(poll)
         db.session.commit()
         return redirect(url_for("main.index"))
-    return render_template('create_lecture_tasks.html', form=form)
-
+    return render_template('create_lecture.html', form=form)
 
 @user_in.route("/my_lectures")
 @login_required
 def my_lectures():
     user_lecs = LectureSample.query.filter_by(user_id=current_user.id)
     return render_template('my_lectures.html', lecs=user_lecs)
-
 
 @user_in.route("/running/<lec_id>", methods=["POST", "GET"])
 @login_required
@@ -110,9 +90,6 @@ def run_lecture(lec_id):
     return render_template("running_lecture.html", polls=polls, code=session["room_code"],
                            polls_available=lec.polls_available)
 
-
-# end funcs
-
 @user_in.route("/sendpoll/<id>", methods=["POST", "GET"])
 @login_required
 def send_poll(id):
@@ -125,7 +102,6 @@ def send_poll(id):
         lecturer_assistant_bot.send_poll(session["room_code"], len(lec.sent_polls_ids)-1, poll_sample)
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
-
 @user_in.route("/endpoll/<id>", methods=["POST", "GET"])
 @login_required
 def close_poll(id):
@@ -136,8 +112,6 @@ def close_poll(id):
 
         poll_data = lecturer_assistant_bot.get_poll_result(session["room_code"], bot_id)
 
-        # link = render_plot(poll_data, poll_sample, id)
-        # bin_data = convert_to_binary_data(link)
         new_poll_res = PollResult(lecture_result_id=session["lec_result_id"],
                                   poll_sample_id=int(lec.poll_ids[int(id)]),
                                   answers=json.dumps(poll_data, ensure_ascii=False))
@@ -148,14 +122,12 @@ def close_poll(id):
 
     return redirect(url_for("user_in.run_lecture", lec_id=session["lec_sample_id"]))
 
-
 @user_in.route("/my_lectures_results")
 @login_required
 def my_lectures_results():
     user_lecs = LectureResult.query.filter_by(user_id=current_user.id)
     user_lecs_with_names = [(lec.lecture_sample.name, lec.id, lec.time.strftime("%H:%M %d.%m.%Y")) for lec in user_lecs]
     return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
-
 
 @user_in.route("/show/<lec_id>", methods=["GET", "POST"])
 @login_required

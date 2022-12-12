@@ -1,9 +1,7 @@
 from collections import defaultdict
 from typing import Union
-
 import telebot
 from telebot import types
-
 from lecture_templates.poll_template import Poll
 
 

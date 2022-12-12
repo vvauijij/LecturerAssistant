@@ -1,6 +1,5 @@
 import telebot
 from telebot import types
-
 from telegram_bot.bot import LecturerAssistantBot
 
 
