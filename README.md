@@ -15,15 +15,10 @@
 
 ### The utility is hosted on the YandexСloud and has a public IP address 
 
-```
 Since Yandex Cloud services are paid, ask [@vvauijij](https://t.me/vvauijij) to deploy server
-```
 
-### The image is available on DockerHub and is available for arm/amd architectures
 
-```
-[Utility](https://hub.docker.com/r/vvauijij/lecturerassistant/tags)
-```
+### The image is available on [DockerHub](https://hub.docker.com/r/vvauijij/lecturerassistant/tags) and is available for arm/amd architectures
 
 
 ## Local usage
