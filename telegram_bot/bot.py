@@ -170,7 +170,7 @@ class LecturerAssistantBot:
         else:
             return None
 
-    def get_feedback(self, room_code: str) -> Union[list[str], None]:
+    def get_chat_feedback(self, room_code: str) -> Union[list, None]:
         """
         return list of feedback-messages from room with given room code
 

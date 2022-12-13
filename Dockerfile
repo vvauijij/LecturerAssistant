@@ -1,5 +1,5 @@
 # start by pulling the python image
-FROM python:3.8-alpine
+FROM python:3.8-slim-buster
 
 
 # upgrade pip to the latest version
@@ -14,5 +14,6 @@ COPY . /LecturerAssistant
 # install the dependencies and packages in the requirements file
 RUN pip install -r requirements.txt
 
-# run website
-CMD [ "python", "exe.py" ]
+EXPOSE 80
+
+CMD ["python", "./exe.py"]
