@@ -1,23 +1,37 @@
-# Lecturer Assistant - local setup
+# Lecturer Assistant
 
-# Prepare virlual env
+Утилита (сайт и телеграм бот) для продуктивного взаимодействия преподавателя с аудиторией во время занятия. 
 
-pipenv shell
-
-
-# Install packages
-pipenv install -r requirements.txt
+Итоговый проект для курса "Углубленный Python" ПМИ ФКН НИУ ВШЭ, 2022. Пеньков Алексей, Сечкарь Константин, Оникова Даша. 
 
 
-# Flask settings
+## Global setup
+## Local setup
 
+### Prepare virlual env
+
+```
+pipenv shell 
+```
+
+### Install packages
+
+```
+pipenv install -r requirements.txt 
+```
+
+
+### Flask settings
+
+``` 
 export FLASK_APP=app
 
 export FLASK_DEBUG=1
+```
 
+### Database settings
 
-# Database settings
-
+```
 flask shell
 
 from app import db
@@ -27,8 +41,10 @@ import models
 db.create_all()
 
 exit()
+```
 
+### Launching
 
-# Launching
+```
 pipenv run python exe.py
-
+```
