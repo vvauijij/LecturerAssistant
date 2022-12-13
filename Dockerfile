@@ -12,7 +12,7 @@ WORKDIR /LecturerAssistant
 COPY . /LecturerAssistant
 
 # install the dependencies and packages in the requirements file
-RUN pip install -r requirements.txt
+RUN pip install -r requirements.txt --use-deprecated=legacy-resolver
 
 EXPOSE 80
 

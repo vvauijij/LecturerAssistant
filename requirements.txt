@@ -6,15 +6,10 @@ SQLAlchemy~=1.4.44
 pandas~=1.5.2
 WTForms~=3.0.1
 plotly~=5.11.0
-numpy~=1.23.5
 
-flask
 flask_sqlalchemy
 flask_login
 flask_wtf
-wtforms
-pandas
 flask-script
 flask-migrate
-plotly
 kaleido
