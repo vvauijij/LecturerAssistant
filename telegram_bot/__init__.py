@@ -3,7 +3,7 @@ from telebot import types
 from telegram_bot.bot import LecturerAssistantBot
 
 
-TOKEN = '5644428496:AAFdrcc45qYVvyvhOlaIbDa94PzPcUwhG1k'
+TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
 bot = telebot.TeleBot(TOKEN)
 lecturer_assistant_bot = LecturerAssistantBot(bot)
 

@@ -30,5 +30,5 @@ exit()
 
 
 # Launching
-python exe.py
+pipenv run python exe.py
 
