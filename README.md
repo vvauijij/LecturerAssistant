@@ -47,7 +47,7 @@ db.create_all()
 exit()
 ```
 
-###Bot settings 
+### Bot settings 
 
 ```
 set YOUR_BOT_TOKEN in telegram_bot/__init__.py
