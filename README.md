@@ -18,7 +18,7 @@
 Since Yandex Cloud services are paid, ask [@vvauijij](https://t.me/vvauijij) to deploy server
 
 
-### The image is available on [DockerHub](https://hub.docker.com/r/vvauijij/lecturerassistant/tags) and is available for arm/amd architectures
+### The image is available on [DockerHub](https://hub.docker.com/r/vvauijij/lecturerassistant/tags) for both ARM64 and AMD64 architectures
 
 
 ## Local usage
