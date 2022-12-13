@@ -10,7 +10,6 @@
 
 [Шаблоны опросов](https://github.com/vvauijij/LecturerAssistant/tree/develop/csv_templates)
 
-## Global setup
 ## Local setup
 
 ### Prepare virlual env
