@@ -33,6 +33,10 @@ def home():
 @user_in.route("/create_lecture", methods=["POST", "GET"])
 @login_required
 def create_lecture():
+    """
+    create lecture from user input
+    :return: redirect to lecture page
+    """
     form = CreateLectureForm()
     if form.validate_on_submit():
         lec_name_inp = form.lec_name.data
@@ -61,6 +65,10 @@ def create_lecture():
 @user_in.route("/my_lectures")
 @login_required
 def my_lectures():
+    """
+    show all lectures created by user
+    :return: render template with list of lectures
+    """
     user_lecs = LectureSample.query.filter_by(user_id=current_user.id)
     return render_template('my_lectures.html', lecs=user_lecs)
 
@@ -68,6 +76,11 @@ def my_lectures():
 @user_in.route("/running/<lec_id>", methods=["POST", "GET"])
 @login_required
 def run_lecture(lec_id):
+    """
+    running lecture interface
+    :param lec_id: id of lecture
+    :return: render template with lecture interface
+    """
     polls_db = PollSample.query.filter_by(lecture_sample_id=lec_id)
     polls_lec, polls_ids = dbPollsToTg(polls_db)
     session["lec_sample_id"] = lec_id
@@ -96,6 +109,11 @@ def run_lecture(lec_id):
 @user_in.route("/sendpoll/<id>", methods=["POST", "GET"])
 @login_required
 def send_poll(id):
+    """
+    send poll to telegram
+    :param id: id of poll (at lecture)
+    :return: redirect to running lecture page
+    """
     if request.method == "POST":
         lec = lecture_from_dict(session["lec"])
         poll_sample = lec.polls[int(id)]
@@ -109,6 +127,11 @@ def send_poll(id):
 @user_in.route("/endpoll/<id>", methods=["POST", "GET"])
 @login_required
 def close_poll(id):
+    """
+    close poll in telegram
+    :param id: id of poll (at lecture)
+    :return: redirect to running lecture page
+    """
     if request.method == "POST":
         lec = lecture_from_dict(session["lec"])
         bot_id = len(lec.sent_polls_ids) - 1 - lec.sent_polls_ids[::-1].index(int(id))
@@ -127,6 +150,10 @@ def close_poll(id):
 @user_in.route("/my_lectures_results")
 @login_required
 def my_lectures_results():
+    """
+    show all lectures results created by user
+    :return: render template with list of lectures results
+    """
     user_lecs = LectureResult.query.filter_by(user_id=current_user.id)
     user_lecs_with_names = [(lec.lecture_sample.name, lec.id, lec.time.strftime("%H:%M %d.%m.%Y")) for lec in user_lecs]
     return render_template('my_lectures_results.html', lecs=user_lecs_with_names)
@@ -135,8 +162,11 @@ def my_lectures_results():
 @user_in.route("/show/<lec_id>", methods=["GET", "POST"])
 @login_required
 def show_lecture(lec_id):
+    """
+    show lecture results
+    :param lec_id: id of lecture result
+    :return: render template with lecture results
+    """
     polls_results_db = PollResult.query.filter_by(lecture_result_id=lec_id)
-
     graphJSON = render_plot(polls_results_db)
-
     return render_template('show_lecture_result.html', graphJSON=graphJSON)

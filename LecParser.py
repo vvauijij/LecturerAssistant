@@ -12,10 +12,10 @@ def CreatePolls(file, cur_id):
     :param cur_id: db.Integer(int)
     """
     polls = [PollSample(question="Оцените темп лекции", poll_type="regular",
-                        answer_variants=json.dumps(["слишком медленно" ,"медленно", "нормально", "быстро", "слишком быстро"],
-                        ensure_ascii=False).encode('utf-8'), lecture_sample_id=cur_id),
-                        PollSample(question="Оцените качество лекции", poll_type="regular",
-                        answer_variants=json.dumps(["1", "2", "3", "4", "5"], ensure_ascii=False).encode('utf-8'), 
+                        answer_variants=json.dumps(["слишком медленно", "медленно", "нормально", "быстро", "слишком быстро"],
+                                                   ensure_ascii=False).encode('utf-8'), lecture_sample_id=cur_id),
+             PollSample(question="Оцените качество лекции", poll_type="regular",
+                        answer_variants=json.dumps(["1", "2", "3", "4", "5"], ensure_ascii=False).encode('utf-8'),
                         lecture_sample_id=cur_id)]
     data = pd.read_json(file)
     for line in data.values:
@@ -31,6 +31,7 @@ def CreatePolls(file, cur_id):
                                 answer_variants=options, lecture_sample_id=cur_id))
     return polls
 
+
 def CreateThemes(file, cur_id):
     """
     create list of ThemeSamples(to be stored in the database) from an input file
@@ -44,6 +45,7 @@ def CreateThemes(file, cur_id):
         themes_list.append(line[0])
     themes_list = json.dumps(themes_list, ensure_ascii=False).encode('utf-8')  # чтобы брать нужен .decode()
     return ThemeSample(themes=themes_list, lecture_sample_id=cur_id)
+
 
 def dbPollsToTg(polls):
     """

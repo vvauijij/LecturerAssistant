@@ -59,8 +59,6 @@ def render_plot(polls_results_db):
         final_pull = [pull[i] for i in range(len(pull)) if not zeros[i]]
         plot.add_trace(go.Pie(labels=final_labels, values=final_values, pull=final_pull), row=i // cols_amount + 1,
                        col=i % cols_amount + 1)
-    # plot sz - 300 x 300, annotations - 30 letters in a line, max annotation sz = 255 letters => 9 lines, 10px per line => 100px
-    # for title height (for case of emergency)
     if not content:
         return None
     width = 300
