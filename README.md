@@ -50,7 +50,7 @@ exit()
 ### Bot settings 
 
 ```
-set YOUR_BOT_TOKEN in telegram_bot/__init__.py
+echo TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN > .env
 ```
 
 ### Launching

@@ -1,9 +1,11 @@
+from os import environ
+
 import telebot
 from telebot import types
 from telegram_bot.bot import LecturerAssistantBot
 
 
-TOKEN = 'YOUR_TELEGRAM_BOT_TOKEN'
+TOKEN = environ.get('TELEGRAM_BOT_TOKEN')
 bot = telebot.TeleBot(TOKEN)
 lecturer_assistant_bot = LecturerAssistantBot(bot)
 
