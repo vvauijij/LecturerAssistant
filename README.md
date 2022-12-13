@@ -34,11 +34,3 @@ exit()
 # Launching
 python exe.py
 
-
-
-# Have no idea whats this 
-бд и миграции
-
-flask db init
-
-flask db migrate -m "message"
