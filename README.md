@@ -4,6 +4,9 @@
 
 Итоговый проект для курса "Углубленный Python" ПМИ ФКН НИУ ВШЭ, 2022. Пеньков Алексей, Сечкарь Константин, Оникова Даша. 
 
+[Презентация](https://github.com/vvauijij/LecturerAssistant/blob/develop/Lecturer%20Assistant.pdf)
+
+[Шаблоны опросов](https://github.com/vvauijij/LecturerAssistant/tree/develop/csv_templates)
 
 ## Global setup
 ## Local setup
