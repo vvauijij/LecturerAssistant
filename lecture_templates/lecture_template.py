@@ -119,7 +119,7 @@ class Lecture:
                              lecture_id=self.lecture_id,
                              themes=self.themes,
                              timecodes=self.timecodes,
-                             polls_results=self.polls_results)  # todo: check if mutable - better to copy
+                             polls_results=self.polls_results)
 
     def __dict__(self):
         return {

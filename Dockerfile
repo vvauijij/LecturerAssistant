@@ -1,3 +1,5 @@
+#NOTICE: FOR USING THIS DICKER FILE TELEGRAM BOT TOKEN & database.db HAVE TO BE CREATED LOCALLY
+
 # start by pulling the python image
 FROM python:3.8-slim-buster
 

@@ -1,24 +1,22 @@
-# Lecturer Assistant - setup
+# Lecturer Assistant - local setup
 
-# Prepare venv
+# Prepare virlual env
 
-python3 -m venv venv
+pipenv shell
 
-source venv/bin/activate
 
 # Install packages
-pip install -r requirements.txt
+pipenv install -r requirements.txt
 
 
 # Flask settings
-настройка фласка:
 
 export FLASK_APP=app
 
 export FLASK_DEBUG=1
 
 
-# Database settings (from terminal)
+# Database settings
 
 flask shell
 
