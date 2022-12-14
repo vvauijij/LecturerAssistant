@@ -58,7 +58,7 @@ db.create_all()
 exit()
 ```
 
-### Bot settings 
+### Bot settings (unique telegram bot token is required)
 
 ```
 echo TELEGRAM_BOT_TOKEN=YOUR_TELEGRAM_BOT_TOKEN > .env
