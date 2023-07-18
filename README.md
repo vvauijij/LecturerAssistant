@@ -2,8 +2,6 @@
 
 Утилита (сайт и телеграм бот) для продуктивного взаимодействия преподавателя с аудиторией во время занятия. 
 
-Итоговый проект для курса "Углубленный Python" ПМИ ФКН НИУ ВШЭ, 2022. 
-
 Авторы: [Пеньков Алексей](https://github.com/vvauijij), [Сечкарь Константин](https://github.com/kssechkar), [Оникова Даша](https://github.com/myramystin). 
 
 [Презентация](https://github.com/vvauijij/LecturerAssistant/blob/develop/Lecturer%20Assistant.pdf)
